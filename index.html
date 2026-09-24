@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stool Tracker · Canine Digestive Health Log</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F4F2EE; --card: #FFFFFF; --ink: #22252A; --ink-2: #4B5058; --ink-3: #80858D;
+    --line: #DEDAD2; --accent: #2F5D62; --accent-2: #4F8388; --accent-bg: #E3EEEE;
+    --warn: #A85A12; --warn-bg: #FBF0E3; --warn-line: #EFCFA8;
+    --urgent: #B3261E; --urgent-bg: #FBE9E7; --urgent-line: #F0B8B3;
+    --ok: #2E7D4F; --ok-bg: #E4F3EA;
+    --stool-1: #5B3A1E; --stool-2: #6E4726; --stool-3: #7E5530; --stool-4: #8C6238;
+    --stool-5: #9A7043; --stool-6: #A77E52; --stool-7: #B89066; --ground: #CFC7B8;
+    --radius: 14px;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+         background: var(--bg); color: var(--ink); line-height: 1.5; font-size: 15px; }
+  .app { max-width: 720px; margin: 0 auto; padding: 16px 16px 64px; }
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0 16px; }
+  header.top h1 { font-size: 20px; font-weight: 650; letter-spacing: -0.01em; }
+  header.top .sub { font-size: 13px; color: var(--ink-3); }
+  .dog-chip { font-size: 13px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; white-space: nowrap; }
+  nav.tabs { display: flex; gap: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px; margin-bottom: 16px; overflow-x: auto; }
+  nav.tabs button { flex: 1; border: 0; background: transparent; padding: 8px 12px; border-radius: 999px; font-size: 14px; color: var(--ink-2); cursor: pointer; white-space: nowrap; }
+  nav.tabs button.active { background: var(--accent); color: #fff; }
+  .view { display: none; } .view.active { display: block; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; }
+  .card h2 { font-size: 17px; font-weight: 620; margin-bottom: 4px; }
+  .card h3 { font-size: 15px; font-weight: 600; margin: 14px 0 8px; }
+  .muted { color: var(--ink-3); font-size: 13px; }
+  .lead { color: var(--ink-2); font-size: 14px; margin-bottom: 12px; }
+  label.field { display: block; font-size: 13px; font-weight: 560; color: var(--ink-2); margin: 12px 0 6px; }
+  input[type=text], input[type=date], input[type=number], select, textarea {
+    width: 100%; font: inherit; font-size: 15px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); }
+  textarea { min-height: 70px; resize: vertical; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+  .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opt { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 7px 14px; font-size: 14px; cursor: pointer; color: var(--ink-2); }
+  .opt.sel { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 10px; padding: 12px 18px; font-size: 15px; font-weight: 600; cursor: pointer; background: var(--accent); color: #fff; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn.secondary { background: var(--accent-bg); color: var(--accent); }
+  .btn.ghost { background: transparent; color: var(--ink-2); border: 1px solid var(--line); }
+  .btn.block { width: 100%; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .photo-zone { border: 1.5px dashed var(--line); border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; background: #FAF9F6; }
+  .photo-zone img { max-width: 100%; max-height: 280px; border-radius: 10px; display: none; margin: 0 auto; }
+  .photo-zone.has-img img { display: block; } .photo-zone.has-img .ph { display: none; }
+  .tips { font-size: 13px; color: var(--ink-3); margin-top: 10px; padding-left: 18px; }
+  .ai-box { margin-top: 12px; border-radius: 12px; padding: 12px 14px; background: var(--accent-bg); font-size: 14px; display: none; }
+  .ai-box.show { display: block; }
+  .ai-box.err { background: var(--warn-bg); }
+  .scale { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .scale-item { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px 8px 8px; cursor: pointer; background: #fff; position: relative; }
+  .scale-item.sel { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; background: #F7FBFB; }
+  .scale-item .ill { width: 96px; height: 56px; }
+  .scale-item .t { font-size: 14px; font-weight: 620; }
+  .scale-item .d { font-size: 13px; color: var(--ink-2); }
+  .scale-item .badge { position: absolute; top: 8px; right: 10px; font-size: 11px; font-weight: 600; color: var(--accent); background: var(--accent-bg); border-radius: 999px; padding: 2px 8px; display: none; }
+  .scale-item.ai .badge { display: inline-block; }
+  .check { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #F0EDE7; font-size: 14px; }
+  .check:last-child { border-bottom: 0; }
+  .check input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--accent); }
+  .flag { border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; font-size: 14px; border: 1px solid; }
+  .flag strong { display: block; margin-bottom: 2px; }
+  .flag.urgent { background: var(--urgent-bg); border-color: var(--urgent-line); color: #6B1813; }
+  .flag.warn { background: var(--warn-bg); border-color: var(--warn-line); color: #5E3409; }
+  .flag.info { background: var(--accent-bg); border-color: #C4DADB; color: #1F4447; }
+  .flag.ok { background: var(--ok-bg); border-color: #BFE0CB; color: #1C4D31; }
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .stat { background: #FAF9F6; border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+  .stat .v { font-size: 22px; font-weight: 650; }
+  .stat .l { font-size: 12px; color: var(--ink-3); }
+  .chart-wrap { width: 100%; overflow: hidden; }
+  .entry { display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid #F0EDE7; }
+  .entry:last-child { border-bottom: 0; }
+  .entry img, .entry .noimg { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; background: #EEE9E1; }
+  .entry .s { font-weight: 640; font-size: 14px; }
+  .entry .m { font-size: 12px; color: var(--ink-3); }
+  .entry .del { background: none; border: 0; color: var(--ink-3); cursor: pointer; font-size: 18px; padding: 4px 8px; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 999px; padding: 1px 8px; margin-left: 6px; vertical-align: 1px; }
+  .pill.tr { background: #EDE7F6; color: #4A3A7A; } .pill.fl { background: var(--urgent-bg); color: var(--urgent); }
+  .progress { height: 8px; border-radius: 999px; background: #ECE8E1; overflow: hidden; margin: 8px 0 4px; }
+  .progress > div { height: 100%; background: var(--accent-2); }
+  .disclosure { font-size: 12.5px; color: var(--ink-2); background: #FAF9F6; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  footer.foot { font-size: 12px; color: var(--ink-3); text-align: center; margin-top: 24px; }
+  .modal-bg { position: fixed; inset: 0; background: rgba(20,22,25,.45); display: none; align-items: flex-start; justify-content: center; padding: 24px 16px; overflow-y: auto; z-index: 50; }
+  .modal-bg.show { display: flex; }
+  .modal { background: var(--card); border-radius: var(--radius); max-width: 560px; width: 100%; padding: 20px; }
+  .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hidden { display: none !important; }
+  /* Print report */
+  #report { display: none; }
+  @media print {
+    body { background: #fff; }
+    .app, .modal-bg { display: none !important; }
+    #report { display: block; padding: 12px; font-size: 12px; color: #000; }
+    #report h1 { font-size: 18px; margin-bottom: 4px; } #report h2 { font-size: 14px; margin: 14px 0 6px; }
+    #report table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    #report th, #report td { border: 1px solid #bbb; padding: 4px 6px; text-align: left; vertical-align: top; }
+    #report .flag { border: 1px solid #999; background: #fff; color: #000; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div>
+      <h1>Stool Tracker</h1>
+      <div class="sub">A home log of your dog's digestive health</div>
+    </div>
+    <button class="dog-chip" id="dogChip" onclick="openProfile()">Set up your dog</button>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-view="log" class="active">Log</button>
+    <button data-view="history">History</button>
+    <button data-view="transition">Diet change</button>
+    <button data-view="about">About</button>
+  </nav>
+
+  <!-- ========== LOG ========== -->
+  <section class="view active" id="view-log">
+    <div id="modeBanner"></div>
+
+    <div class="card">
+      <h2>1. Photo <span class="muted">(optional)</span></h2>
+      <p class="lead">A photo lets the app suggest a score. You always choose the final score.</p>
+      <div class="photo-zone" id="photoZone" onclick="document.getElementById('photoInput').click()">
+        <div class="ph">
+          <div style="font-size:28px">📷</div>
+          <div style="font-weight:600">Take or upload a photo</div>
+          <div class="muted">Photos are compressed on your device before analysis</div>
+        </div>
+        <img id="photoPreview" alt="Stool photo preview" />
+      </div>
+      <input type="file" id="photoInput" accept="image/*" capture="environment" class="hidden" />
+      <ul class="tips">
+        <li>Shoot from directly above, about 12–18 inches away, in daylight if you can.</li>
+        <li>Include the whole stool. A poop bag or your shoe nearby helps show size.</li>
+        <li>Grass, mulch, and artificial light change how color looks, so color is only ever flagged for an in-person recheck.</li>
+      </ul>
+      <div class="btn-row">
+        <button class="btn" id="analyzeBtn" disabled onclick="analyzePhoto()">Suggest a score</button>
+        <button class="btn ghost hidden" id="clearPhotoBtn" onclick="clearPhoto()">Remove photo</button>
+      </div>
+      <div class="ai-box" id="aiBox"></div>
+    </div>
+
+    <div class="card">
+      <h2>2. Consistency score</h2>
+      <p class="lead">Pick the description that matches best. If you're between two, choose the looser one.</p>
+      <div class="scale" id="scaleList"></div>
+    </div>
+
+    <div class="card">
+      <h2>3. What else did you notice?</h2>
+      <h3>In the stool</h3>
+      <label class="check"><input type="checkbox" id="c_mucus" /> Mucus or a jelly-like coating</label>
+      <label class="check"><input type="checkbox" id="c_worms" /> Something that looks like worms or rice-like segments</label>
+      <label class="check"><input type="checkbox" id="c_foreign" /> Foreign material (fabric, plastic, grass, bone pieces, etc.)</label>
+      <label class="field">Blood</label>
+      <div class="opts" data-group="blood">
+        <button class="opt sel" data-v="none">None seen</button>
+        <button class="opt" data-v="streak">A small streak of red</button>
+        <button class="opt" data-v="more">More than a streak of red</button>
+      </div>
+      <label class="check" style="margin-top:8px"><input type="checkbox" id="c_tarry" /> Black, tar-like stool (not just dark brown)</label>
+      <label class="check"><input type="checkbox" id="c_color" /> Unusual color I want to recheck (grey, yellow, orange, green)</label>
+
+      <h3>Your dog</h3>
+      <label class="check"><input type="checkbox" id="c_strain" /> Straining, or trying to go without much result</label>
+      <label class="check"><input type="checkbox" id="c_urgency" /> Urgent need to go, or accidents indoors</label>
+      <label class="check"><input type="checkbox" id="c_vomit" /> Vomited today</label>
+      <label class="check"><input type="checkbox" id="c_lethargy" /> Unusually tired, weak, or not interested in things</label>
+      <label class="check"><input type="checkbox" id="c_appetite" /> Eating noticeably less than usual</label>
+      <div class="row">
+        <div>
+          <label class="field" for="c_times">Bowel movements today so far</label>
+          <input type="number" id="c_times" min="0" max="20" placeholder="e.g. 2" />
+        </div>
+        <div>
+          <label class="field" for="c_amount">Amount compared with usual</label>
+          <select id="c_amount">
+            <option value="">Not sure</option>
+            <option value="less">Less than usual</option>
+            <option value="usual">About usual</option>
+            <option value="more">More than usual</option>
+          </select>
+        </div>
+      </div>
+
+      <h3>Anything different lately?</h3>
+      <div class="opts" data-group="context" data-multi="1">
+        <button class="opt" data-v="new_treat">New treat or chew</button>
+        <button class="opt" data-v="table_food">Table food</button>
+        <button class="opt" data-v="scavenged">Got into something</button>
+        <button class="opt" data-v="meds">Medication or supplement change</button>
+        <button class="opt" data-v="stress">Stress, travel, or boarding</button>
+        <button class="opt" data-v="exercise">Big change in activity</button>
+      </div>
+      <label class="field" for="c_notes">Notes</label>
+      <textarea id="c_notes" placeholder="Anything else worth remembering"></textarea>
+    </div>
+
+    <button class="btn block" id="saveBtn" onclick="saveEntry()">Save this log</button>
+    <div id="saveResult" style="margin-top:14px"></div>
+  </section>
+
+  <!-- ========== HISTORY ========== -->
+  <section class="view" id="view-history">
+    <div class="card">
+      <h2>Your dog's pattern</h2>
+      <p class="lead" id="baselineText"></p>
+      <div class="stat-row" id="statRow"></div>
+    </div>
+    <div class="card">
+      <h2>Consistency over time</h2>
+      <p class="muted" style="margin-bottom:8px">Shaded band = your dog's usual range. Dashed lines = diet changes.</p>
+      <div class="chart-wrap" id="chart"></div>
+    </div>
+    <div class="card">
+      <h2>Log entries</h2>
+      <div id="entryList"></div>
+      <div class="btn-row">
+        <button class="btn" onclick="printReport()">Vet report (print / save as PDF)</button>
+        <button class="btn secondary" onclick="exportData()">Export data</button>
+        <button class="btn ghost" onclick="document.getElementById('importInput').click()">Import data</button>
+        <input type="file" id="importInput" accept="application/json" class="hidden" />
+      </div>
+      <p class="muted" style="margin-top:10px">Your log is stored only in this browser on this device. Export it to keep a backup or move it to another device.</p>
+    </div>
+  </section>
+
+  <!-- ========== DIET CHANGE ========== -->
+  <section class="view" id="view-transition">
+    <div class="card" id="transitionActive"></div>
+    <div class="card">
+      <h2>Start a diet change</h2>
+      <p class="lead">Works for any food: kibble, canned, raw, freeze-dried, home-prepared, or a mix. Logging during a change helps you see whether stool settles back to your dog's normal.</p>
+      <div class="row">
+        <div>
+          <label class="field" for="t_fromFmt">Current food type</label>
+          <select id="t_fromFmt"></select>
+        </div>
+        <div>
+          <label class="field" for="t_toFmt">New food type</label>
+          <select id="t_toFmt"></select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label class="field" for="t_from">Current food (brand / product, optional)</label>
+          <input type="text" id="t_from" />
+        </div>
+        <div>
+          <label class="field" for="t_to">New food (brand / product, optional)</label>
+          <input type="text" id="t_to" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label class="field" for="t_start">Start date</label>
+          <input type="date" id="t_start" />
+        </div>
+        <div>
+          <label class="field" for="t_days">Planned change-over (days)</label>
+          <input type="number" id="t_days" min="1" max="60" />
+        </div>
+      </div>
+      <p class="muted" style="margin-top:8px">Follow your veterinarian's or the food maker's guidance on how gradually to switch. The day count here is only for tracking.</p>
+      <div class="btn-row"><button class="btn" onclick="startTransition()">Start tracking this change</button></div>
+    </div>
+  </section>
+
+  <!-- ========== ABOUT ========== -->
+  <section class="view" id="view-about">
+    <div class="card">
+      <h2>How this tracker works</h2>
+      <p class="lead">Stool changes are one of the earliest, easiest signs of how your dog is doing. This tool helps you record them consistently so you and your veterinarian can see patterns over time.</p>
+      <h3>It compares your dog to your dog</h3>
+      <p class="lead">Healthy stool looks different on different diets. Foods with more fiber tend to produce more stool; lower-residue foods tend to produce less. Neither is "better" on that basis. After your first several logs, the tracker learns your dog's usual range and watches for changes from it.</p>
+      <h3>The score</h3>
+      <p class="lead">Scores run from 1 (hard pellets) to 7 (liquid). Many dogs' normal falls around 2–3, but your dog's own steady pattern matters more than any single number. Stool that is too hard is also worth noticing.</p>
+      <h3>The photo suggestion</h3>
+      <p class="lead">When you add a photo, an AI model suggests a score and points out anything visible, like mucus or blood. It is an estimate, not a measurement, and it has not been validated against veterinary scoring. You always choose the final score. The app records whether you agreed with the suggestion.</p>
+      <h3>What this tool cannot do</h3>
+      <p class="lead">It cannot detect parasite eggs, hidden blood, infections, or the cause of any change. Only a veterinarian, often with a lab test, can do that. It does not diagnose, and it does not recommend or rate any food.</p>
+    </div>
+    <div class="card">
+      <h2>Scoring disclosure</h2>
+      <div class="disclosure" id="disclosureText"></div>
+    </div>
+    <div class="card">
+      <h2>Privacy</h2>
+      <p class="lead">Your log stays in this browser. Photos you choose to analyze are sent once to the analysis service to generate a suggestion; only a small thumbnail is kept in your log.</p>
+      <div class="btn-row"><button class="btn ghost" onclick="resetAll()">Delete all data on this device</button></div>
+    </div>
+  </section>
+
+  <footer class="foot">Educational tool only. Not a substitute for veterinary care. If your dog seems unwell, contact your veterinarian.</footer>
+</div>
+
+<!-- ========== PROFILE / ONBOARDING MODAL ========== -->
+<div class="modal-bg" id="profileModal">
+  <div class="modal">
+    <h2 style="font-size:18px">About your dog</h2>
+    <p class="lead">This helps the tracker know when to be more cautious. Puppies, seniors, and very small dogs can dehydrate faster.</p>
+    <label class="field" for="p_name">Dog's name</label>
+    <input type="text" id="p_name" />
+    <label class="field">Age</label>
+    <div class="opts" data-group="p_age">
+      <button class="opt" data-v="puppy">Under 1 year</button>
+      <button class="opt" data-v="adult">Adult</button>
+      <button class="opt" data-v="senior">Senior</button>
+    </div>
+    <label class="field">Size</label>
+    <div class="opts" data-group="p_size">
+      <button class="opt" data-v="toy">Toy / very small</button>
+      <button class="opt" data-v="small">Small</button>
+      <button class="opt" data-v="medium">Medium</button>
+      <button class="opt" data-v="large">Large / giant</button>
+    </div>
+    <div class="row">
+      <div>
+        <label class="field" for="p_fmt">Current food type</label>
+        <select id="p_fmt"></select>
+      </div>
+      <div>
+        <label class="field" for="p_food">Brand / product (optional)</label>
+        <input type="text" id="p_food" />
+      </div>
+    </div>
+    <div class="disclosure" style="margin-top:14px" id="onboardDisclosure"></div>
+    <label class="check" id="ackRow" style="margin-top:6px"><input type="checkbox" id="p_ack" /> I understand this is an educational tool and not veterinary advice.</label>
+    <div class="btn-row">
+      <button class="btn" onclick="saveProfile()">Save</button>
+      <button class="btn ghost" id="profileCancel" onclick="closeProfile()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="report"></div>
+
+<script>
+/* =====================================================================
+   CONFIGURATION
+   ===================================================================== */
+const ANALYZE_ENDPOINT = "/.netlify/functions/analyze-stool";
+const STORAGE_KEY = "stoolTracker.v1";
+const MAX_DIMENSION = 1024;   // matches the setting that worked in the dental tracker
+const JPEG_QUALITY = 0.82;
+const THUMB_DIMENSION = 160;
+
+// !!! PLACEHOLDER CLINICAL THRESHOLDS !!!
+// These are starting values for development only. Have a veterinary advisor
+// review and set every value in this block before public launch.
+const CLINICAL = {
+  looseScore: 6,               // score at or above this counts as "loose"
+  looseRunDefault: 3,          // consecutive loose logs before a vet prompt (healthy adults)
+  looseRunVulnerable: 2,       // same, for puppies, seniors, toy breeds
+  hardScore: 1,                // score at or below this counts as "hard"
+  hardRun: 3,                  // consecutive hard logs before a prompt
+  baselineMinLogs: 7,          // logs needed before a personal baseline is shown
+  baselineMaxLogs: 14,         // baseline uses the first this-many everyday logs
+  baselineShift: 2,            // points away from baseline median that counts as a change
+  transitionDefaultDays: 7,    // default planned change-over length (tracking only)
+  transitionGraceDays: 7       // extra days after change-over before "not settling" prompt
+};
+
+const DISCLOSURE = "The scoring logic in this app is adapted from the publicly available Purina and Waltham Fecal Scoring Systems. This app is an independent tool and is not officially endorsed by, affiliated with, or licensed by Nestlé Purina or Mars, Inc. All descriptions and illustrations in this app are original.";
+
+const CONTEXT_LABELS = {
+  new_treat: "New treat or chew", table_food: "Table food", scavenged: "Got into something",
+  meds: "Medication or supplement change", stress: "Stress, travel, or boarding", exercise: "Big change in activity"
+};
+
+const FOOD_FORMATS = [
+  ["", "Choose…"], ["kibble", "Dry kibble"], ["wet", "Wet / canned"], ["fresh", "Fresh / cooked (refrigerated)"],
+  ["raw", "Raw (frozen)"], ["freeze_dried", "Freeze-dried or air-dried"], ["home", "Home-prepared"],
+  ["mixed", "Mix of types"], ["other", "Other"]
+];
+
+/* =====================================================================
+   ORIGINAL SCALE COPY + ILLUSTRATIONS
+   ===================================================================== */
+const SCALE = [
+  { s: 1, t: "Pellets", d: "Small, hard, dry pieces like pebbles. May crumble apart. Your dog may strain to pass them." },
+  { s: 2, t: "Firm log", d: "Holds its shape well, with visible cracks or sections and a dull, dry-looking surface. Lifts off the ground cleanly." },
+  { s: 3, t: "Moist log", d: "Holds its shape; surface looks damp or shiny and sections are faint or gone. May leave a light mark behind." },
+  { s: 4, t: "Soft log", d: "Still roughly log-shaped but squishy, with no sections. Leaves a clear smear when you pick it up." },
+  { s: 5, t: "Soft piles", d: "Too soft to hold a log shape. Sits in mounds or heaps and is hard to pick up in one piece." },
+  { s: 6, t: "Loose", d: "Some texture remains but no shape at all. Spreads out into patches." },
+  { s: 7, t: "Liquid", d: "Watery, with little or no texture. Spreads flat like a puddle." }
+];
+
+function illustration(score) {
+  const c = `var(--stool-${score})`;
+  const g = `<line x1="4" y1="46" x2="92" y2="46" stroke="var(--ground)" stroke-width="2" stroke-linecap="round"/>`;
+  let body = "";
+  switch (score) {
+    case 1:
+      body = [[18,38,6],[31,40,5],[43,37,6],[56,40,5],[68,38,6],[80,40,4.5],[37,30,4.5],[62,30,4]]
+        .map(([x,y,r]) => `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*0.85}" fill="${c}"/>`).join("") +
+        `<circle cx="16" cy="36" r="1.2" fill="#fff" opacity=".25"/><circle cx="54" cy="38" r="1.2" fill="#fff" opacity=".25"/>`;
+      break;
+    case 2:
+      body = `<rect x="12" y="28" width="24" height="15" rx="7" fill="${c}"/>
+              <rect x="35" y="27" width="24" height="16" rx="7" fill="${c}"/>
+              <rect x="58" y="29" width="26" height="14" rx="7" fill="${c}"/>
+              <path d="M22 30 l2 5 M46 29 l-2 6 M70 31 l2 4" stroke="#000" stroke-opacity=".25" stroke-width="1.2"/>`;
+      break;
+    case 3:
+      body = `<path d="M12 36 C12 28, 22 26, 48 27 C74 28, 84 29, 84 36 C84 43, 72 44, 48 44 C24 44, 12 43, 12 36 Z" fill="${c}"/>
+              <path d="M22 30 C38 28, 60 28, 74 31" stroke="#fff" stroke-opacity=".45" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <path d="M49 29 l-1 5" stroke="#000" stroke-opacity=".12" stroke-width="1"/>`;
+      break;
+    case 4:
+      body = `<ellipse cx="50" cy="46" rx="38" ry="2.5" fill="${c}" opacity=".35"/>
+              <path d="M12 40 C12 32, 24 30, 48 31 C72 32, 86 33, 86 40 C86 45, 72 45.5, 48 45.5 C24 45.5, 12 45, 12 40 Z" fill="${c}"/>
+              <path d="M24 34 C40 33, 58 33, 72 35" stroke="#fff" stroke-opacity=".35" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+      break;
+    case 5:
+      body = `<path d="M10 46 C12 38, 20 34, 28 35 C32 30, 42 30, 46 36 C50 33, 58 34, 60 40 C62 36, 72 35, 76 41 C80 40, 86 42, 88 46 Z" fill="${c}"/>
+              <path d="M24 38 C28 35, 36 34, 42 37" stroke="#fff" stroke-opacity=".35" stroke-width="1.8" fill="none" stroke-linecap="round"/>`;
+      break;
+    case 6:
+      body = `<path d="M6 46 C8 42, 16 40, 24 41 C30 38, 40 39, 44 42 C50 40, 58 40, 62 43 C68 41, 80 41, 90 46 Z" fill="${c}"/>
+              <ellipse cx="80" cy="44" rx="5" ry="1.8" fill="${c}"/><ellipse cx="14" cy="44.5" rx="4" ry="1.5" fill="${c}"/>
+              <circle cx="30" cy="42.5" r="1" fill="#000" opacity=".2"/><circle cx="56" cy="42.8" r="1" fill="#000" opacity=".2"/>`;
+      break;
+    case 7:
+      body = `<path d="M6 46 C10 43.5, 24 42.5, 36 43.5 C46 42, 62 42.5, 70 43.5 C80 42.8, 88 44, 92 46 C88 47.5, 70 48.5, 50 48 C30 48.5, 12 48, 6 46 Z" fill="${c}" opacity=".85"/>
+              <path d="M28 44.5 C36 44, 50 44, 58 44.6" stroke="#fff" stroke-opacity=".45" stroke-width="1.2" fill="none" stroke-linecap="round"/>`;
+      break;
+  }
+  return `<svg class="ill" viewBox="0 0 96 56" role="img" aria-label="Illustration of score ${score}">${g}${body}</svg>`;
+}
+
+/* =====================================================================
+   STATE + STORAGE
+   ===================================================================== */
+let db = { profile: null, entries: [], transitions: [] };
+let draft = resetDraft();
+let photoFull = null;   // base64 (no prefix) sent for analysis
+let photoThumb = null;  // small data URL kept in the log
+
+function resetDraft() {
+  return { score: null, aiScore: null, aiConfidence: null, aiFindings: null, blood: "none", context: [] };
+}
+function load() {
+  try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) db = Object.assign(db, JSON.parse(raw)); }
+  catch (_) { /* storage unavailable: the app still works for this session */ }
+}
+function persist() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); return true; }
+  catch (_) { return false; }
+}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[ch])); }
+function todayISO() { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
+function daysBetween(a, b) { return Math.floor((new Date(b + "T12:00:00") - new Date(a + "T12:00:00")) / 86400000); }
+function fmtFormat(v) { const f = FOOD_FORMATS.find(x => x[0] === v); return f && v ? f[1] : "—"; }
+function isVulnerable() { const p = db.profile || {}; return p.age === "puppy" || p.age === "senior" || p.size === "toy"; }
+
+/* =====================================================================
+   OPTION BUTTONS
+   ===================================================================== */
+function wireOpts(root) {
+  root.querySelectorAll(".opts").forEach(group => {
+    group.addEventListener("click", e => {
+      const btn = e.target.closest(".opt"); if (!btn) return;
+      const multi = group.dataset.multi === "1";
+      if (multi) btn.classList.toggle("sel");
+      else { group.querySelectorAll(".opt").forEach(b => b.classList.remove("sel")); btn.classList.add("sel"); }
+      const name = group.dataset.group;
+      if (name === "blood") draft.blood = btn.dataset.v;
+      if (name === "context") draft.context = [...group.querySelectorAll(".opt.sel")].map(b => b.dataset.v);
+    });
+  });
+}
+function selectedOpt(group) { const b = document.querySelector(`.opts[data-group="${group}"] .opt.sel`); return b ? b.dataset.v : null; }
+function setOpt(group, v) { document.querySelectorAll(`.opts[data-group="${group}"] .opt`).forEach(b => b.classList.toggle("sel", b.dataset.v === v)); }
+
+/* =====================================================================
+   TABS
+   ===================================================================== */
+document.getElementById("tabs").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  showView(b.dataset.view);
+});
+function showView(name) {
+  document.querySelectorAll("#tabs button").forEach(x => x.classList.toggle("active", x.dataset.view === name));
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + name));
+  if (name === "history") renderHistory();
+  if (name === "transition") renderTransition();
+  window.scrollTo(0, 0);
+}
+
+/* =====================================================================
+   SCALE PICKER
+   ===================================================================== */
+function renderScale() {
+  const el = document.getElementById("scaleList");
+  el.innerHTML = SCALE.map(x => `
+    <div class="scale-item${draft.score === x.s ? " sel" : ""}${draft.aiScore === x.s ? " ai" : ""}" data-s="${x.s}" role="button" tabindex="0">
+      ${illustration(x.s)}
+      <div><div class="t">${x.s} · ${x.t}</div><div class="d">${x.d}</div></div>
+      <span class="badge">Suggested</span>
+    </div>`).join("");
+}
+document.getElementById("scaleList").addEventListener("click", e => {
+  const it = e.target.closest(".scale-item"); if (!it) return;
+  draft.score = Number(it.dataset.s); renderScale();
+});
+document.getElementById("scaleList").addEventListener("keydown", e => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const it = e.target.closest(".scale-item"); if (!it) return;
+  e.preventDefault(); draft.score = Number(it.dataset.s); renderScale();
+});
+
+/* =====================================================================
+   PHOTO
+   ===================================================================== */
+document.getElementById("photoInput").addEventListener("change", async e => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const img = await loadImage(file);
+    photoFull = resize(img, MAX_DIMENSION, JPEG_QUALITY).split(",")[1];
+    photoThumb = resize(img, THUMB_DIMENSION, 0.7);
+    const prev = document.getElementById("photoPreview");
+    prev.src = "data:image/jpeg;base64," + photoFull;
+    document.getElementById("photoZone").classList.add("has-img");
+    document.getElementById("analyzeBtn").disabled = false;
+    document.getElementById("clearPhotoBtn").classList.remove("hidden");
+    hideAI();
+  } catch (_) {
+    showAI("That photo couldn't be read. Try a different photo, or score without one.", true);
+  }
+  e.target.value = "";
+});
+function loadImage(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("load")); };
+    img.src = url;
+  });
+}
+function resize(img, maxDim, q) {
+  const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+  const w = Math.round(img.naturalWidth * scale), h = Math.round(img.naturalHeight * scale);
+  const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+  cv.getContext("2d").drawImage(img, 0, 0, w, h);
+  return cv.toDataURL("image/jpeg", q);
+}
+function clearPhoto() {
+  photoFull = null; photoThumb = null;
+  document.getElementById("photoZone").classList.remove("has-img");
+  document.getElementById("photoPreview").removeAttribute("src");
+  document.getElementById("analyzeBtn").disabled = true;
+  document.getElementById("clearPhotoBtn").classList.add("hidden");
+  draft.aiScore = null; draft.aiConfidence = null; draft.aiFindings = null;
+  hideAI(); renderScale();
+}
+function showAI(html, isErr) { const b = document.getElementById("aiBox"); b.innerHTML = html; b.classList.add("show"); b.classList.toggle("err", !!isErr); }
+function hideAI() { const b = document.getElementById("aiBox"); b.classList.remove("show", "err"); b.innerHTML = ""; }
+
+async function analyzePhoto() {
+  if (!photoFull) return;
+  const btn = document.getElementById("analyzeBtn");
+  btn.disabled = true; btn.innerHTML = `<span class="spinner"></span> Looking at the photo…`;
+  try {
+    const p = db.profile || {};
+    const resp = await fetch(ANALYZE_ENDPOINT, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: photoFull, mediaType: "image/jpeg", context: { ageGroup: p.age, size: p.size } })
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(data.error || "The analysis service didn't respond.");
+    applyAI(data);
+  } catch (err) {
+    showAI(`<strong>No suggestion this time.</strong> ${esc(err.message)} You can still choose a score below.`, true);
+  } finally {
+    btn.disabled = false; btn.textContent = "Suggest a score";
+  }
+}
+function applyAI(r) {
+  if (!r.photo_usable || !r.suggested_score) {
+    showAI(`<strong>The photo was hard to read.</strong> ${esc(r.usable_reason || "Try again from directly above in better light.")} You can still choose a score below.`, true);
+    return;
+  }
+  draft.aiScore = r.suggested_score; draft.aiConfidence = r.confidence; draft.aiFindings = r.visible_findings || {};
+  if (draft.score === null) draft.score = r.suggested_score;
+  const f = draft.aiFindings, seen = [];
+  if (f.mucus_or_coating) { seen.push("possible mucus or coating"); document.getElementById("c_mucus").checked = true; }
+  if (f.red_blood_visible) { seen.push("possible red blood"); if (draft.blood === "none") { draft.blood = "streak"; setOpt("blood", "streak"); } }
+  if (f.very_dark_or_tarry_appearance) seen.push("a very dark appearance (check in person whether it is black and tar-like)");
+  if (f.foreign_material) { seen.push("possible foreign material"); document.getElementById("c_foreign").checked = true; }
+  if (f.possible_worms_or_segments) { seen.push("something that may be worms or segments"); document.getElementById("c_worms").checked = true; }
+  if (f.colour_recheck_suggested) seen.push("a color worth rechecking in person");
+  const s = SCALE[r.suggested_score - 1];
+  showAI(`<strong>Suggested: ${s.s} · ${s.t}</strong> <span class="muted">(${esc(r.confidence)} confidence)</span><br>
+    ${esc(r.note || "")}
+    ${seen.length ? `<br><br>Also noticed: ${esc(seen.join("; "))}. Please confirm these below. Anything the app ticked for you can be unticked.` : ""}
+    <br><span class="muted">This is an AI estimate. Check that it matches what you see, and change the score if it doesn't.</span>`);
+  renderScale();
+}
+
+/* =====================================================================
+   TRANSITIONS
+   ===================================================================== */
+function activeTransition(onDate) {
+  const d = onDate || todayISO();
+  return (db.transitions || []).find(t => !t.ended && d >= t.start) || null;
+}
+function transitionDay(t, onDate) { return daysBetween(t.start, onDate || todayISO()) + 1; }
+
+function renderModeBanner() {
+  const t = activeTransition(); const el = document.getElementById("modeBanner");
+  if (!t) { el.innerHTML = ""; return; }
+  const day = transitionDay(t);
+  el.innerHTML = `<div class="flag info"><strong>Diet change in progress · day ${day}</strong>
+    ${esc(fmtFormat(t.fromFmt))} → ${esc(fmtFormat(t.toFmt))}. This log will be tagged to the change.</div>`;
+}
+function renderTransition() {
+  ["t_fromFmt", "t_toFmt"].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel.options.length) sel.innerHTML = FOOD_FORMATS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
+  });
+  const p = db.profile || {};
+  if (!document.getElementById("t_fromFmt").value && p.fmt) document.getElementById("t_fromFmt").value = p.fmt;
+  if (!document.getElementById("t_from").value && p.food) document.getElementById("t_from").value = p.food;
+  if (!document.getElementById("t_start").value) document.getElementById("t_start").value = todayISO();
+  if (!document.getElementById("t_days").value) document.getElementById("t_days").value = CLINICAL.transitionDefaultDays;
+
+  const t = activeTransition(); const box = document.getElementById("transitionActive");
+  if (!t) { box.innerHTML = `<h2>No diet change in progress</h2><p class="lead">Start one below whenever you switch foods.</p>`; return; }
+  const day = transitionDay(t);
+  const pct = Math.min(100, Math.round((day / t.days) * 100));
+  const logs = db.entries.filter(e => e.transitionId === t.id);
+  const recent = logs.slice(-3).map(e => e.score);
+  const b = baseline();
+  let status = "";
+  if (!logs.length) status = `<div class="flag info">No logs yet for this change. Try to log each day so you can see the pattern.</div>`;
+  else if (b && recent.every(s => Math.abs(s - b.median) < CLINICAL.baselineShift) && recent.length >= 2)
+    status = `<div class="flag ok"><strong>Looking settled.</strong> Recent logs are within your dog's usual range.</div>`;
+  else if (day > t.days + CLINICAL.transitionGraceDays && b && recent.some(s => Math.abs(s - b.median) >= CLINICAL.baselineShift))
+    status = `<div class="flag warn"><strong>Not settled yet.</strong> Stool is still outside your dog's usual range after the planned change-over. Consider checking in with your veterinarian.</div>`;
+  else status = `<div class="flag info">Some change in stool is common while switching foods. Keep logging.</div>`;
+  box.innerHTML = `<h2>Diet change in progress</h2>
+    <p class="lead">${esc(fmtFormat(t.fromFmt))}${t.from ? " (" + esc(t.from) + ")" : ""} → ${esc(fmtFormat(t.toFmt))}${t.to ? " (" + esc(t.to) + ")" : ""}</p>
+    <div class="muted">Day ${day} of a planned ${t.days}-day change-over · ${logs.length} log${logs.length === 1 ? "" : "s"}</div>
+    <div class="progress"><div style="width:${pct}%"></div></div>
+    ${status}
+    <div class="btn-row"><button class="btn secondary" onclick="endTransition('${t.id}')">Mark this change complete</button></div>`;
+}
+function startTransition() {
+  const toFmt = document.getElementById("t_toFmt").value;
+  if (!toFmt) { alert("Please choose the new food type."); return; }
+  const days = Math.max(1, Math.min(60, Number(document.getElementById("t_days").value) || CLINICAL.transitionDefaultDays));
+  (db.transitions || []).forEach(t => { if (!t.ended) t.ended = todayISO(); });
+  const t = {
+    id: uid(), start: document.getElementById("t_start").value || todayISO(), days,
+    fromFmt: document.getElementById("t_fromFmt").value, toFmt,
+    from: document.getElementById("t_from").value.trim(), to: document.getElementById("t_to").value.trim(), ended: null
+  };
+  db.transitions = db.transitions || []; db.transitions.push(t);
+  if (db.profile) { db.profile.fmt = toFmt; db.profile.food = t.to; }
+  persist(); renderTransition(); renderModeBanner(); updateChip();
+}
+function endTransition(id) {
+  const t = db.transitions.find(x => x.id === id); if (t) t.ended = todayISO();
+  persist(); renderTransition(); renderModeBanner();
+}
+
+/* =====================================================================
+   BASELINE + FLAGS
+   ===================================================================== */
+function median(a) { const s = [...a].sort((x, y) => x - y); const m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
+// Baseline = the first everyday logs after setup (or after a reset), so a later
+// bout of illness can't quietly redefine "normal". Logs made during a diet change
+// or with urgent flags are excluded.
+function baselinePool() {
+  const from = db.baselineFrom || 0;
+  return [...db.entries].sort((a, b) => a.ts - b.ts)
+    .filter(e => e.ts >= from && !e.transitionId && !e.urgent)
+    .slice(0, CLINICAL.baselineMaxLogs);
+}
+function baseline() {
+  const all = baselinePool();
+  if (all.length < CLINICAL.baselineMinLogs) return null;
+  // Establish from the first logs, then only extend with logs close to that range,
+  // so an early bout of loose or hard stool doesn't widen "normal".
+  let pool = all.slice(0, CLINICAL.baselineMinLogs);
+  const first = [...pool.map(e => e.score)].sort((a, b) => a - b);
+  const lo0 = first[Math.floor(first.length * 0.2)], hi0 = first[Math.ceil(first.length * 0.8) - 1];
+  pool = pool.concat(all.slice(CLINICAL.baselineMinLogs).filter(e => e.score >= lo0 - 1 && e.score <= hi0 + 1));
+  const scores = pool.map(e => e.score).sort((a, b) => a - b);
+  const lo = scores[Math.floor(scores.length * 0.2)], hi = scores[Math.ceil(scores.length * 0.8) - 1];
+  return { median: median(scores), lo, hi, n: pool.length };
+}
+function evaluate(entry, all) {
+  const flags = [];
+  const loose = entry.score >= CLINICAL.looseScore;
+  // Always-urgent signs: shown immediately, never averaged away.
+  if (entry.tarry) flags.push(["urgent", "Black, tar-like stool", "This can be a sign of bleeding higher in the digestive tract. Contact your veterinarian today."]);
+  if (entry.blood === "more") flags.push(["urgent", "More than a streak of blood", "Contact your veterinarian today."]);
+  if (loose && entry.vomit) flags.push(["urgent", "Loose stool with vomiting", "Losing fluid from both ends can dehydrate a dog quickly. Contact your veterinarian today."]);
+  if (loose && entry.lethargy) flags.push(["urgent", "Loose stool and your dog seems unwell", "Contact your veterinarian today."]);
+  if (entry.strain && entry.foreign) flags.push(["urgent", "Straining with possible foreign material", "Swallowed objects can cause blockages. Contact your veterinarian today."]);
+  if (loose && isVulnerable() && flags.length === 0) flags.push(["warn", "Loose stool in a puppy, senior, or very small dog", "These dogs can dehydrate faster than healthy adults. Watch closely and call your veterinarian if it continues or your dog seems off."]);
+  if (entry.worms) flags.push(["warn", "Possible worms or segments", "Mention this to your veterinarian. A stool test can confirm what it is."]);
+  if (entry.blood === "streak") flags.push(["warn", "A small streak of blood", "One small streak can happen with straining or irritation. If it repeats or increases, contact your veterinarian."]);
+  if (entry.colorRecheck) flags.push(["info", "Color to recheck", "Look again in daylight. If an unusual color (grey, yellow, orange) persists, mention it to your veterinarian."]);
+
+  // Runs of loose or hard stool.
+  const prior = all.filter(e => e.id !== entry.id).concat([entry]).sort((a, b) => a.ts - b.ts);
+  const run = (test) => { let n = 0; for (let i = prior.length - 1; i >= 0; i--) { if (test(prior[i].score)) n++; else break; } return n; };
+  const needLoose = isVulnerable() ? CLINICAL.looseRunVulnerable : CLINICAL.looseRunDefault;
+  const looseRun = run(s => s >= CLINICAL.looseScore);
+  if (looseRun >= needLoose) flags.push(["warn", `Loose stool on ${looseRun} logs in a row`, "Ongoing loose stool is worth a call to your veterinarian, especially if your dog is drinking less or seems off."]);
+  const hardRun = run(s => s <= CLINICAL.hardScore);
+  if (hardRun >= CLINICAL.hardRun) flags.push(["warn", `Hard, dry stool on ${hardRun} logs in a row`, "Ongoing hard stool or straining is worth mentioning to your veterinarian."]);
+
+  // Change from this dog's baseline.
+  const b = baseline();
+  if (b && !flags.some(f => f[0] === "urgent" || f[1].includes("in a row"))) {
+    const diff = entry.score - b.median;
+    if (Math.abs(diff) >= CLINICAL.baselineShift) {
+      const t = activeTransition(entry.date);
+      flags.push(["info", `${diff > 0 ? "Looser" : "Firmer"} than your dog's usual`,
+        t ? "A diet change is in progress, so some change is common. Keep logging to see if it settles."
+          : "One different log is usually nothing. Watch the next few."]);
+    }
+  }
+  return flags;
+}
+function flagsHTML(flags) {
+  if (!flags.length) return `<div class="flag ok"><strong>Saved.</strong> Nothing in this log needs attention.</div>`;
+  return flags.map(([lvl, t, d]) => `<div class="flag ${lvl}"><strong>${esc(t)}</strong>${esc(d)}</div>`).join("");
+}
+
+/* =====================================================================
+   SAVE
+   ===================================================================== */
+function saveEntry() {
+  if (!db.profile) { openProfile(true); return; }
+  if (draft.score === null) { alert("Please choose a consistency score."); return; }
+  const t = activeTransition();
+  const timesRaw = document.getElementById("c_times").value;
+  const entry = {
+    id: uid(), ts: Date.now(), date: todayISO(), score: draft.score,
+    aiScore: draft.aiScore, aiConfidence: draft.aiConfidence, aiAgreed: draft.aiScore ? draft.aiScore === draft.score : null,
+    mucus: gv("c_mucus"), worms: gv("c_worms"), foreign: gv("c_foreign"), blood: draft.blood, tarry: gv("c_tarry"), colorRecheck: gv("c_color"),
+    strain: gv("c_strain"), urgency: gv("c_urgency"), vomit: gv("c_vomit"), lethargy: gv("c_lethargy"), appetite: gv("c_appetite"),
+    times: timesRaw === "" ? null : Number(timesRaw), amount: document.getElementById("c_amount").value || null,
+    context: [...draft.context], notes: document.getElementById("c_notes").value.trim(),
+    fmt: (db.profile || {}).fmt || null, food: (db.profile || {}).food || null,
+    transitionId: t ? t.id : null, transitionDay: t ? transitionDay(t) : null, thumb: photoThumb
+  };
+  const flags = evaluate(entry, db.entries);
+  entry.urgent = flags.some(f => f[0] === "urgent");
+  entry.flagTitles = flags.filter(f => f[0] !== "info").map(f => f[1]);
+  db.entries.push(entry);
+  let ok = persist();
+  if (!ok && entry.thumb) { entry.thumb = null; ok = persist(); }
+  document.getElementById("saveResult").innerHTML = flagsHTML(flags) +
+    (ok ? "" : `<div class="flag warn"><strong>Couldn't save to this browser.</strong>Storage may be full or disabled. Use Export on the History tab to keep a copy.</div>`);
+  resetForm();
+  document.getElementById("saveResult").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function gv(id) { return document.getElementById(id).checked; }
+function resetForm() {
+  draft = resetDraft(); clearPhoto();
+  ["c_mucus","c_worms","c_foreign","c_tarry","c_color","c_strain","c_urgency","c_vomit","c_lethargy","c_appetite"].forEach(id => document.getElementById(id).checked = false);
+  document.getElementById("c_times").value = ""; document.getElementById("c_amount").value = ""; document.getElementById("c_notes").value = "";
+  setOpt("blood", "none");
+  document.querySelectorAll('.opts[data-group="context"] .opt').forEach(b => b.classList.remove("sel"));
+  renderScale(); renderModeBanner();
+}
+
+/* =====================================================================
+   HISTORY
+   ===================================================================== */
+function renderHistory() {
+  const E = [...db.entries].sort((a, b) => a.ts - b.ts);
+  const b = baseline();
+  const name = esc((db.profile || {}).name || "your dog");
+  document.getElementById("baselineText").innerHTML = b
+    ? `${name}'s usual range is <strong>${b.lo === b.hi ? b.lo : b.lo + "–" + b.hi}</strong> (middle value ${b.median}), based on ${b.n} everyday logs.`
+    : `Log ${Math.max(0, CLINICAL.baselineMinLogs - baselinePool().length)} more everyday entries (outside a diet change) and the tracker will learn ${name}'s usual range.`;
+  document.getElementById("baselineText").innerHTML += ` <button class="opt" style="margin-top:8px" onclick="resetBaseline()">Relearn usual range from today</button>`;
+  const last14 = E.filter(e => daysBetween(e.date, todayISO()) < 14);
+  const withAI = E.filter(e => e.aiScore);
+  document.getElementById("statRow").innerHTML = `
+    <div class="stat"><div class="v">${E.length}</div><div class="l">Total logs</div></div>
+    <div class="stat"><div class="v">${last14.length ? median(last14.map(e => e.score)) : "—"}</div><div class="l">Middle score, last 14 days</div></div>
+    <div class="stat"><div class="v">${withAI.length ? Math.round(100 * withAI.filter(e => e.aiAgreed).length / withAI.length) + "%" : "—"}</div><div class="l">You agreed with the photo suggestion</div></div>`;
+  document.getElementById("chart").innerHTML = chartSVG(E, b);
+  document.getElementById("entryList").innerHTML = E.length ? [...E].reverse().map(e => `
+    <div class="entry">
+      ${e.thumb ? `<img src="${e.thumb}" alt="">` : `<div class="noimg"></div>`}
+      <div>
+        <div class="s">${e.score} · ${SCALE[e.score - 1].t}${e.transitionId ? `<span class="pill tr">Diet change d${e.transitionDay}</span>` : ""}${e.flagTitles && e.flagTitles.length ? `<span class="pill fl">Flag</span>` : ""}</div>
+        <div class="m">${new Date(e.ts).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}${e.aiScore ? ` · photo suggested ${e.aiScore}` : ""}</div>
+        ${e.flagTitles && e.flagTitles.length ? `<div class="m">${esc(e.flagTitles.join(" · "))}</div>` : ""}
+      </div>
+      <button class="del" title="Delete" aria-label="Delete entry" onclick="deleteEntry('${e.id}')">×</button>
+    </div>`).join("") : `<p class="muted">No logs yet.</p>`;
+}
+function chartSVG(E, b) {
+  if (E.length < 2) return `<p class="muted">The chart appears after two logs.</p>`;
+  const W = 640, H = 230, L = 34, R = 12, T = 12, B = 26;
+  const t0 = E[0].ts, t1 = E[E.length - 1].ts, span = Math.max(1, t1 - t0);
+  const x = ts => L + (W - L - R) * (ts - t0) / span;
+  const y = s => T + (H - T - B) * (s - 1) / 6;
+  let g = "";
+  if (b) g += `<rect x="${L}" y="${y(b.lo) - 6}" width="${W - L - R}" height="${y(b.hi) - y(b.lo) + 12}" fill="var(--accent-bg)"/>`;
+  for (let s = 1; s <= 7; s++) g += `<line x1="${L}" x2="${W - R}" y1="${y(s)}" y2="${y(s)}" stroke="#ECE8E1"/><text x="${L - 8}" y="${y(s) + 4}" font-size="11" text-anchor="end" fill="var(--ink-3)">${s}</text>`;
+  (db.transitions || []).forEach(t => {
+    const ts = new Date(t.start + "T12:00:00").getTime();
+    if (ts >= t0 && ts <= t1) g += `<line x1="${x(ts)}" x2="${x(ts)}" y1="${T}" y2="${H - B}" stroke="#7B68B5" stroke-dasharray="4 4"/>`;
+  });
+  g += `<polyline fill="none" stroke="var(--accent-2)" stroke-width="2" points="${E.map(e => `${x(e.ts).toFixed(1)},${y(e.score).toFixed(1)}`).join(" ")}"/>`;
+  g += E.map(e => `<circle cx="${x(e.ts).toFixed(1)}" cy="${y(e.score).toFixed(1)}" r="4" fill="${e.urgent ? "var(--urgent)" : "var(--accent)"}"><title>${new Date(e.ts).toLocaleDateString()}: ${e.score}</title></circle>`).join("");
+  g += `<text x="${L}" y="${H - 6}" font-size="11" fill="var(--ink-3)">${new Date(t0).toLocaleDateString()}</text>`;
+  g += `<text x="${W - R}" y="${H - 6}" font-size="11" text-anchor="end" fill="var(--ink-3)">${new Date(t1).toLocaleDateString()}</text>`;
+  g += `<text x="${L + 4}" y="${T + 12}" font-size="10" fill="var(--ink-3)">firmer</text><text x="${L + 4}" y="${H - B - 4}" font-size="10" fill="var(--ink-3)">looser</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Stool score over time">${g}</svg>`;
+}
+function resetBaseline() {
+  if (!confirm("Start learning a new usual range from today? Useful after a settled diet change or a vet-guided change. Past logs are kept.")) return;
+  db.baselineFrom = Date.now(); persist(); renderHistory();
+}
+function deleteEntry(id) {
+  if (!confirm("Delete this log entry?")) return;
+  db.entries = db.entries.filter(e => e.id !== id); persist(); renderHistory();
+}
+
+/* =====================================================================
+   EXPORT / IMPORT / REPORT
+   ===================================================================== */
+function exportData() {
+  const blob = new Blob([JSON.stringify(db, null, 2)], { type: "application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = `stool-tracker-${((db.profile || {}).name || "dog").replace(/\W+/g, "-").toLowerCase()}-${todayISO()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+document.getElementById("importInput").addEventListener("change", e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!Array.isArray(d.entries)) throw new Error();
+      if (!confirm("Replace the log on this device with the imported file?")) return;
+      db = { profile: d.profile || null, entries: d.entries, transitions: d.transitions || [], baselineFrom: d.baselineFrom || 0 };
+      persist(); updateChip(); renderHistory(); renderModeBanner();
+    } catch (_) { alert("That file isn't a Stool Tracker export."); }
+  };
+  r.readAsText(f); e.target.value = "";
+});
+function printReport() {
+  const p = db.profile || {}, E = [...db.entries].sort((a, b) => a.ts - b.ts), b = baseline();
+  const yn = v => v ? "Yes" : "";
+  const flagged = E.filter(e => e.flagTitles && e.flagTitles.length);
+  document.getElementById("report").innerHTML = `
+    <h1>Stool log: ${esc(p.name || "Dog")}</h1>
+    <div>Printed ${new Date().toLocaleString()} · Age group: ${esc(p.age || "—")} · Size: ${esc(p.size || "—")} · Current food: ${esc(fmtFormat(p.fmt))}${p.food ? " (" + esc(p.food) + ")" : ""}</div>
+    <div>Usual range: ${b ? `${b.lo}–${b.hi} (median ${b.median}, ${b.n} logs)` : "not yet established"}</div>
+    <h2>Consistency over time</h2>${chartSVG(E, b)}
+    <h2>Diet changes</h2>
+    ${(db.transitions || []).length ? `<table><tr><th>Start</th><th>From</th><th>To</th><th>Planned days</th><th>Ended</th></tr>${db.transitions.map(t => `<tr><td>${t.start}</td><td>${esc(fmtFormat(t.fromFmt))} ${esc(t.from)}</td><td>${esc(fmtFormat(t.toFmt))} ${esc(t.to)}</td><td>${t.days}</td><td>${t.ended || "In progress"}</td></tr>`).join("")}</table>` : "<div>None recorded.</div>"}
+    <h2>Flagged entries (${flagged.length})</h2>
+    ${flagged.length ? flagged.map(e => `<div>${new Date(e.ts).toLocaleString()}: score ${e.score}. ${esc(e.flagTitles.join("; "))}</div>`).join("") : "<div>None.</div>"}
+    <h2>All entries</h2>
+    <table><tr><th>Date / time</th><th>Score</th><th>Photo suggestion</th><th>Blood</th><th>Mucus</th><th>Tarry</th><th>Strain</th><th>Vomit</th><th>Lethargy</th><th>Diet change</th><th>Recent changes / notes</th></tr>
+    ${E.map(e => `<tr><td>${new Date(e.ts).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}</td><td>${e.score}</td><td>${e.aiScore || ""}</td><td>${e.blood === "none" ? "" : esc(e.blood)}</td><td>${yn(e.mucus)}</td><td>${yn(e.tarry)}</td><td>${yn(e.strain)}</td><td>${yn(e.vomit)}</td><td>${yn(e.lethargy)}</td><td>${e.transitionId ? "Day " + e.transitionDay : ""}</td><td>${esc([...(e.context || []).map(c => CONTEXT_LABELS[c] || c), e.notes].filter(Boolean).join("; "))}</td></tr>`).join("")}</table>
+    <p style="margin-top:12px;font-size:10px">Owner-recorded observations. Photo suggestions are AI estimates and are not validated against veterinary scoring. ${esc(DISCLOSURE)}</p>`;
+  window.print();
+}
+
+/* =====================================================================
+   PROFILE
+   ===================================================================== */
+function openProfile(required) {
+  const p = db.profile || {};
+  const sel = document.getElementById("p_fmt");
+  if (!sel.options.length) sel.innerHTML = FOOD_FORMATS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
+  document.getElementById("p_name").value = p.name || "";
+  sel.value = p.fmt || ""; document.getElementById("p_food").value = p.food || "";
+  setOpt("p_age", p.age || null); setOpt("p_size", p.size || null);
+  document.getElementById("p_ack").checked = !!p.ack;
+  document.getElementById("profileCancel").classList.toggle("hidden", !!required && !db.profile);
+  document.getElementById("profileModal").classList.add("show");
+}
+function closeProfile() { document.getElementById("profileModal").classList.remove("show"); }
+function saveProfile() {
+  const age = selectedOpt("p_age"), size = selectedOpt("p_size");
+  if (!age || !size) { alert("Please choose an age group and size."); return; }
+  if (!document.getElementById("p_ack").checked) { alert("Please confirm you understand this is an educational tool."); return; }
+  db.profile = Object.assign(db.profile || {}, {
+    name: document.getElementById("p_name").value.trim(), age, size,
+    fmt: document.getElementById("p_fmt").value, food: document.getElementById("p_food").value.trim(), ack: true
+  });
+  persist(); updateChip(); closeProfile();
+}
+function updateChip() {
+  const p = db.profile;
+  document.getElementById("dogChip").textContent = p ? `🐕 ${p.name || "Your dog"} · ${fmtFormat(p.fmt)}` : "Set up your dog";
+}
+function resetAll() {
+  if (!confirm("Delete your dog's profile and every log on this device? This can't be undone. Export first if you want a copy.")) return;
+  db = { profile: null, entries: [], transitions: [] };
+  try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+  updateChip(); renderModeBanner(); showView("log"); openProfile(true);
+}
+
+/* =====================================================================
+   INIT
+   ===================================================================== */
+load();
+wireOpts(document);
+document.getElementById("disclosureText").textContent = DISCLOSURE;
+document.getElementById("onboardDisclosure").textContent = DISCLOSURE;
+renderScale(); renderModeBanner(); updateChip();
+if (!db.profile) openProfile(true);
+</script>
+</body>
+</html>
