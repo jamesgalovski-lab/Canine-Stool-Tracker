@@ -1,9 +1,11 @@
+[README.md](https://github.com/user-attachments/files/33826341/README.md)
 # Stool Tracker: deploy notes
 
 Brand-neutral, diet-neutral stool log for dogs. Same stack as the body condition and dental apps: one HTML page plus one Netlify function.
 
 ## Files
 - `index.html`: the whole app (no external libraries).
+- `images/score-1.jpg` … `score-7.jpg`: reference photos for the scale (1 = hard pellets, 7 = watery). Original AI-generated images made under Jim Galovski's direction.
 - `netlify/functions/analyze-stool.js`: photo analysis proxy. It has its own name so it cannot affect the existing `analyze` function the other apps use.
 
 ## Deploy
@@ -16,7 +18,7 @@ Brand-neutral, diet-neutral stool log for dogs. Same stack as the body condition
 ## Must do before public launch
 - **Veterinary review of the `CLINICAL` block** near the top of the script in `index.html`. Every threshold there (how many loose logs in a row trigger a vet prompt, baseline size, transition grace period) is a development placeholder, not a clinical standard.
 - **Legal review** of the disclosure wording and of naming Purina/Waltham/Nestlé Purina/Mars in it. The disclosure text lives in the `DISCLOSURE` constant.
-- **Illustrations**: the seven score drawings are original SVGs drawn in code (`illustration()` function). Swap in commissioned artwork or your own photos if you prefer; keep them original.
+- **Watchout wording**: the color, blood, mucus, hard-stool and "when to call" messages (the `evaluate()` function and the Learn card on the About tab) should get the same veterinary review as the thresholds.
 
 ## Data and privacy
 - Everything is stored in the browser's localStorage under `stoolTracker.v1`. Nothing is saved on a server.
