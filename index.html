@@ -55,9 +55,14 @@
   .ai-box.show { display: block; }
   .ai-box.err { background: var(--warn-bg); }
   .scale { display: grid; grid-template-columns: 1fr; gap: 8px; }
-  .scale-item { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px 8px 8px; cursor: pointer; background: #fff; position: relative; }
+  .scale-item { display: grid; grid-template-columns: 112px 1fr; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px 8px 8px; cursor: pointer; background: #fff; position: relative; }
   .scale-item.sel { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; background: #F7FBFB; }
-  .scale-item .ill { width: 96px; height: 56px; }
+  .scale-item .ill { width: 112px; height: 84px; object-fit: cover; border-radius: 8px; display: block; background: #EEE9E1; }
+  .learn h3 { margin-top: 18px; }
+  .learn dl { margin: 0; }
+  .learn dt { font-weight: 620; font-size: 14px; margin-top: 10px; }
+  .learn dd { margin: 2px 0 0; color: var(--ink-2); font-size: 14px; }
+  .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; border: 1px solid rgba(0,0,0,.15); }
   .scale-item .t { font-size: 14px; font-weight: 620; }
   .scale-item .d { font-size: 13px; color: var(--ink-2); }
   .scale-item .badge { position: absolute; top: 8px; right: 10px; font-size: 11px; font-weight: 600; color: var(--accent); background: var(--accent-bg); border-radius: 999px; padding: 2px 8px; display: none; }
@@ -161,20 +166,31 @@
     <div class="card">
       <h2>3. What else did you notice?</h2>
       <h3>In the stool</h3>
-      <label class="check"><input type="checkbox" id="c_mucus" /> Mucus or a jelly-like coating</label>
-      <label class="check"><input type="checkbox" id="c_worms" /> Something that looks like worms or rice-like segments</label>
-      <label class="check"><input type="checkbox" id="c_foreign" /> Foreign material (fabric, plastic, grass, bone pieces, etc.)</label>
+      <label class="field">Color <span class="muted">(look in person, in daylight if you can)</span></label>
+      <div class="opts" data-group="color">
+        <button class="opt sel" data-v="brown"><span class="swatch" style="background:#6E4726"></span>Brown, any shade</button>
+        <button class="opt" data-v="black"><span class="swatch" style="background:#1B1714"></span>Black and tar-like</button>
+        <button class="opt" data-v="grey"><span class="swatch" style="background:#B8B2A6"></span>Grey, pale, or greasy</button>
+        <button class="opt" data-v="green"><span class="swatch" style="background:#5E7A3A"></span>Green</button>
+        <button class="opt" data-v="yellow"><span class="swatch" style="background:#C98A2E"></span>Yellow or orange</button>
+      </div>
       <label class="field">Blood</label>
       <div class="opts" data-group="blood">
         <button class="opt sel" data-v="none">None seen</button>
         <button class="opt" data-v="streak">A small streak of red</button>
-        <button class="opt" data-v="more">More than a streak of red</button>
+        <button class="opt" data-v="more">More than a streak, or mixed through</button>
       </div>
-      <label class="check" style="margin-top:8px"><input type="checkbox" id="c_tarry" /> Black, tar-like stool (not just dark brown)</label>
-      <label class="check"><input type="checkbox" id="c_color" /> Unusual color I want to recheck (grey, yellow, orange, green)</label>
+      <label class="field">Mucus</label>
+      <div class="opts" data-group="mucus">
+        <button class="opt sel" data-v="none">None seen</button>
+        <button class="opt" data-v="little">A little</button>
+        <button class="opt" data-v="heavy">A lot, or a jelly-like coating</button>
+      </div>
+      <label class="check" style="margin-top:8px"><input type="checkbox" id="c_worms" /> Something that looks like worms (spaghetti-like) or rice-like segments</label>
+      <label class="check"><input type="checkbox" id="c_foreign" /> Foreign material (fabric, plastic, grass, bone pieces, etc.)</label>
 
       <h3>Your dog</h3>
-      <label class="check"><input type="checkbox" id="c_strain" /> Straining, or trying to go without much result</label>
+      <label class="check"><input type="checkbox" id="c_strain" /> Straining, or trying to go with little or nothing coming out</label>
       <label class="check"><input type="checkbox" id="c_urgency" /> Urgent need to go, or accidents indoors</label>
       <label class="check"><input type="checkbox" id="c_vomit" /> Vomited today</label>
       <label class="check"><input type="checkbox" id="c_lethargy" /> Unusually tired, weak, or not interested in things</label>
@@ -292,6 +308,40 @@
       <h3>What this tool cannot do</h3>
       <p class="lead">It cannot detect parasite eggs, hidden blood, infections, or the cause of any change. Only a veterinarian, often with a lab test, can do that. It does not diagnose, and it does not recommend or rate any food.</p>
     </div>
+    <div class="card learn">
+      <h2>Learn: what to look for</h2>
+      <p class="lead">Consistency is only part of the picture. Color, blood, mucus, and how your dog is acting add the rest. Check these in person; photos can't show them reliably.</p>
+
+      <h3>Color</h3>
+      <dl>
+        <dt><span class="swatch" style="background:#6E4726"></span>Brown, any shade</dt>
+        <dd>Normal. The brown comes from bile pigments that gut bacteria break down. Diet can shift the exact shade lighter or darker.</dd>
+        <dt><span class="swatch" style="background:#1B1714"></span>Black and tar-like</dt>
+        <dd>Different from dark brown: sticky, tar-like, and unusually foul-smelling. It can mean bleeding high in the digestive tract, because digested blood turns black. Some medications and iron supplements can also darken stool, so a vet needs to tell them apart. Contact your veterinarian the same day.</dd>
+        <dt><span class="swatch" style="background:#B8B2A6"></span>Grey, pale, or greasy</dt>
+        <dd>Especially when bulky, shiny, and very smelly, this can mean the gut isn't absorbing fat properly. It tends to be an ongoing pattern rather than a one-off, and it needs a veterinary workup.</dd>
+        <dt><span class="swatch" style="background:#5E7A3A"></span>Green</dt>
+        <dd>Usually means food moved through quickly, so bile wasn't fully broken down. Eating a lot of grass can do it too. One green stool is common; green that keeps happening with loose stool or weight loss needs a vet's attention.</dd>
+        <dt><span class="swatch" style="background:#C98A2E"></span>Yellow or orange</dt>
+        <dd>Can also come with fast transit. These colors are less specific, so read them together with consistency, frequency, and how your dog is doing. Yellow and greasy overlaps with the pattern above.</dd>
+      </dl>
+
+      <h3>Blood</h3>
+      <p class="lead">Bright red blood usually comes from lower in the gut or around the bottom. Causes include colitis, anal gland problems, or irritation from passing hard stool. A single small streak in a dog who is bright and eating normally can usually wait for a routine appointment. Repeated streaks, more than a streak, blood mixed through the stool, or blood with straining need prompt attention.</p>
+
+      <h3>Mucus</h3>
+      <p class="lead">A small amount of mucus can be normal. A lot of mucus, or a jelly-like coating, suggests the large bowel is irritated and is worth a call to your veterinarian, especially if it repeats or comes with loose stool or blood.</p>
+
+      <h3>Hard stool</h3>
+      <p class="lead">Hard, dry pellets that your dog strains to pass can mean constipation. Make sure fresh water is always available. If your dog strains with little or nothing coming out, seems uncomfortable, or hard stool keeps happening, contact your veterinarian. Straining with nothing passing can also mean a blockage or anal gland trouble.</p>
+
+      <h3>How often</h3>
+      <p class="lead">Most adult dogs go one to three times a day, though this varies with size, routine, and diet. A change from your dog's usual pattern matters more than the number itself.</p>
+
+      <h3>When to call your veterinarian</h3>
+      <p class="lead">Contact your vet today for black, tar-like stool; more than a streak of blood; loose stool with vomiting or a dog who seems tired or unwell; or straining with nothing passing. Also call if loose stool lasts more than about two days, or if you see worms. Puppies, seniors, very small dogs, and dogs with ongoing illness can dehydrate faster, so check in sooner with them.</p>
+    </div>
+
     <div class="card">
       <h2>Scoring disclosure</h2>
       <div class="disclosure" id="disclosureText"></div>
@@ -362,8 +412,10 @@ const THUMB_DIMENSION = 160;
 // review and set every value in this block before public launch.
 const CLINICAL = {
   looseScore: 6,               // score at or above this counts as "loose"
-  looseRunDefault: 3,          // consecutive loose logs before a vet prompt (healthy adults)
-  looseRunVulnerable: 2,       // same, for puppies, seniors, toy breeds
+  looseHoursDefault: 48,       // loose stool lasting this long → vet prompt (healthy adults)
+  looseHoursVulnerable: 24,    // same, for puppies, seniors, toy breeds (placeholder)
+  watery: 7,                   // score treated as watery (urgent in vulnerable dogs)
+  bloodRepeatDays: 7,          // a second blood streak within this many days → prompt attention
   hardScore: 1,                // score at or below this counts as "hard"
   hardRun: 3,                  // consecutive hard logs before a prompt
   baselineMinLogs: 7,          // logs needed before a personal baseline is shown
@@ -373,7 +425,10 @@ const CLINICAL = {
   transitionGraceDays: 7       // extra days after change-over before "not settling" prompt
 };
 
-const DISCLOSURE = "The scoring logic in this app is adapted from the publicly available Purina and Waltham Fecal Scoring Systems. This app is an independent tool and is not officially endorsed by, affiliated with, or licensed by Nestlé Purina or Mars, Inc. All descriptions and illustrations in this app are original.";
+const DISCLOSURE = "The scoring logic in this app is adapted from the publicly available Purina and Waltham Fecal Scoring Systems. This app is an independent tool and is not officially endorsed by, affiliated with, or licensed by Nestlé Purina or Mars, Inc. All descriptions and images in this app are original.";
+
+const COLOR_LABELS = { brown: "Brown", black: "Black, tar-like", grey: "Grey / pale / greasy", green: "Green", yellow: "Yellow / orange" };
+const MUCUS_LABELS = { none: "", little: "A little", heavy: "A lot" };
 
 const CONTEXT_LABELS = {
   new_treat: "New treat or chew", table_food: "Table food", scavenged: "Got into something",
@@ -399,47 +454,10 @@ const SCALE = [
   { s: 7, t: "Liquid", d: "Watery, with little or no texture. Spreads flat like a puddle." }
 ];
 
+// Reference photos: original AI-generated images, one per score (images/score-1.jpg … score-7.jpg).
 function illustration(score) {
-  const c = `var(--stool-${score})`;
-  const g = `<line x1="4" y1="46" x2="92" y2="46" stroke="var(--ground)" stroke-width="2" stroke-linecap="round"/>`;
-  let body = "";
-  switch (score) {
-    case 1:
-      body = [[18,38,6],[31,40,5],[43,37,6],[56,40,5],[68,38,6],[80,40,4.5],[37,30,4.5],[62,30,4]]
-        .map(([x,y,r]) => `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*0.85}" fill="${c}"/>`).join("") +
-        `<circle cx="16" cy="36" r="1.2" fill="#fff" opacity=".25"/><circle cx="54" cy="38" r="1.2" fill="#fff" opacity=".25"/>`;
-      break;
-    case 2:
-      body = `<rect x="12" y="28" width="24" height="15" rx="7" fill="${c}"/>
-              <rect x="35" y="27" width="24" height="16" rx="7" fill="${c}"/>
-              <rect x="58" y="29" width="26" height="14" rx="7" fill="${c}"/>
-              <path d="M22 30 l2 5 M46 29 l-2 6 M70 31 l2 4" stroke="#000" stroke-opacity=".25" stroke-width="1.2"/>`;
-      break;
-    case 3:
-      body = `<path d="M12 36 C12 28, 22 26, 48 27 C74 28, 84 29, 84 36 C84 43, 72 44, 48 44 C24 44, 12 43, 12 36 Z" fill="${c}"/>
-              <path d="M22 30 C38 28, 60 28, 74 31" stroke="#fff" stroke-opacity=".45" stroke-width="2" fill="none" stroke-linecap="round"/>
-              <path d="M49 29 l-1 5" stroke="#000" stroke-opacity=".12" stroke-width="1"/>`;
-      break;
-    case 4:
-      body = `<ellipse cx="50" cy="46" rx="38" ry="2.5" fill="${c}" opacity=".35"/>
-              <path d="M12 40 C12 32, 24 30, 48 31 C72 32, 86 33, 86 40 C86 45, 72 45.5, 48 45.5 C24 45.5, 12 45, 12 40 Z" fill="${c}"/>
-              <path d="M24 34 C40 33, 58 33, 72 35" stroke="#fff" stroke-opacity=".35" stroke-width="2" fill="none" stroke-linecap="round"/>`;
-      break;
-    case 5:
-      body = `<path d="M10 46 C12 38, 20 34, 28 35 C32 30, 42 30, 46 36 C50 33, 58 34, 60 40 C62 36, 72 35, 76 41 C80 40, 86 42, 88 46 Z" fill="${c}"/>
-              <path d="M24 38 C28 35, 36 34, 42 37" stroke="#fff" stroke-opacity=".35" stroke-width="1.8" fill="none" stroke-linecap="round"/>`;
-      break;
-    case 6:
-      body = `<path d="M6 46 C8 42, 16 40, 24 41 C30 38, 40 39, 44 42 C50 40, 58 40, 62 43 C68 41, 80 41, 90 46 Z" fill="${c}"/>
-              <ellipse cx="80" cy="44" rx="5" ry="1.8" fill="${c}"/><ellipse cx="14" cy="44.5" rx="4" ry="1.5" fill="${c}"/>
-              <circle cx="30" cy="42.5" r="1" fill="#000" opacity=".2"/><circle cx="56" cy="42.8" r="1" fill="#000" opacity=".2"/>`;
-      break;
-    case 7:
-      body = `<path d="M6 46 C10 43.5, 24 42.5, 36 43.5 C46 42, 62 42.5, 70 43.5 C80 42.8, 88 44, 92 46 C88 47.5, 70 48.5, 50 48 C30 48.5, 12 48, 6 46 Z" fill="${c}" opacity=".85"/>
-              <path d="M28 44.5 C36 44, 50 44, 58 44.6" stroke="#fff" stroke-opacity=".45" stroke-width="1.2" fill="none" stroke-linecap="round"/>`;
-      break;
-  }
-  return `<svg class="ill" viewBox="0 0 96 56" role="img" aria-label="Illustration of score ${score}">${g}${body}</svg>`;
+  const x = SCALE[score - 1];
+  return `<img class="ill" src="images/score-${score}.jpg" alt="Example of score ${score}, ${x.t.toLowerCase()}" loading="lazy" width="112" height="84">`;
 }
 
 /* =====================================================================
@@ -451,7 +469,7 @@ let photoFull = null;   // base64 (no prefix) sent for analysis
 let photoThumb = null;  // small data URL kept in the log
 
 function resetDraft() {
-  return { score: null, aiScore: null, aiConfidence: null, aiFindings: null, blood: "none", context: [] };
+  return { score: null, aiScore: null, aiConfidence: null, aiFindings: null, blood: "none", color: "brown", mucus: "none", context: [] };
 }
 function load() {
   try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) db = Object.assign(db, JSON.parse(raw)); }
@@ -466,6 +484,8 @@ function esc(s) { return String(s ?? "").replace(/[&<>"']/g, ch => ({ "&":"&amp;
 function todayISO() { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
 function daysBetween(a, b) { return Math.floor((new Date(b + "T12:00:00") - new Date(a + "T12:00:00")) / 86400000); }
 function fmtFormat(v) { const f = FOOD_FORMATS.find(x => x[0] === v); return f && v ? f[1] : "—"; }
+function colorOf(e) { return e.color || (e.tarry ? "black" : "brown"); }
+function mucusOf(e) { return typeof e.mucus === "string" ? (MUCUS_LABELS[e.mucus] || "") : (e.mucus ? "Yes" : ""); }
 function isVulnerable() { const p = db.profile || {}; return p.age === "puppy" || p.age === "senior" || p.size === "toy"; }
 
 /* =====================================================================
@@ -480,6 +500,8 @@ function wireOpts(root) {
       else { group.querySelectorAll(".opt").forEach(b => b.classList.remove("sel")); btn.classList.add("sel"); }
       const name = group.dataset.group;
       if (name === "blood") draft.blood = btn.dataset.v;
+      if (name === "color") draft.color = btn.dataset.v;
+      if (name === "mucus") draft.mucus = btn.dataset.v;
       if (name === "context") draft.context = [...group.querySelectorAll(".opt.sel")].map(b => b.dataset.v);
     });
   });
@@ -599,16 +621,17 @@ function applyAI(r) {
   draft.aiScore = r.suggested_score; draft.aiConfidence = r.confidence; draft.aiFindings = r.visible_findings || {};
   if (draft.score === null) draft.score = r.suggested_score;
   const f = draft.aiFindings, seen = [];
-  if (f.mucus_or_coating) { seen.push("possible mucus or coating"); document.getElementById("c_mucus").checked = true; }
+  if (f.mucus_or_coating) { seen.push("possible mucus"); if (draft.mucus === "none") { draft.mucus = "little"; setOpt("mucus", "little"); } }
   if (f.red_blood_visible) { seen.push("possible red blood"); if (draft.blood === "none") { draft.blood = "streak"; setOpt("blood", "streak"); } }
-  if (f.very_dark_or_tarry_appearance) seen.push("a very dark appearance (check in person whether it is black and tar-like)");
   if (f.foreign_material) { seen.push("possible foreign material"); document.getElementById("c_foreign").checked = true; }
   if (f.possible_worms_or_segments) { seen.push("something that may be worms or segments"); document.getElementById("c_worms").checked = true; }
-  if (f.colour_recheck_suggested) seen.push("a color worth rechecking in person");
+  // Color is never set from the photo; the owner checks it in person.
+  if (f.very_dark_or_tarry_appearance) seen.push("a very dark appearance (check in person whether it is black and tar-like, and set Color below)");
+  else if (f.colour_recheck_suggested) seen.push("a color worth checking in person (set Color below)");
   const s = SCALE[r.suggested_score - 1];
   showAI(`<strong>Suggested: ${s.s} · ${s.t}</strong> <span class="muted">(${esc(r.confidence)} confidence)</span><br>
     ${esc(r.note || "")}
-    ${seen.length ? `<br><br>Also noticed: ${esc(seen.join("; "))}. Please confirm these below. Anything the app ticked for you can be unticked.` : ""}
+    ${seen.length ? `<br><br>Also noticed: ${esc(seen.join("; "))}. Please confirm these below. Anything the app filled in for you can be changed.` : ""}
     <br><span class="muted">This is an AI estimate. Check that it matches what you see, and change the score if it doesn't.</span>`);
   renderScale();
 }
@@ -709,29 +732,58 @@ function baseline() {
 function evaluate(entry, all) {
   const flags = [];
   const loose = entry.score >= CLINICAL.looseScore;
-  // Always-urgent signs: shown immediately, never averaged away.
-  if (entry.tarry) flags.push(["urgent", "Black, tar-like stool", "This can be a sign of bleeding higher in the digestive tract. Contact your veterinarian today."]);
-  if (entry.blood === "more") flags.push(["urgent", "More than a streak of blood", "Contact your veterinarian today."]);
-  if (loose && entry.vomit) flags.push(["urgent", "Loose stool with vomiting", "Losing fluid from both ends can dehydrate a dog quickly. Contact your veterinarian today."]);
-  if (loose && entry.lethargy) flags.push(["urgent", "Loose stool and your dog seems unwell", "Contact your veterinarian today."]);
-  if (entry.strain && entry.foreign) flags.push(["urgent", "Straining with possible foreign material", "Swallowed objects can cause blockages. Contact your veterinarian today."]);
-  if (loose && isVulnerable() && flags.length === 0) flags.push(["warn", "Loose stool in a puppy, senior, or very small dog", "These dogs can dehydrate faster than healthy adults. Watch closely and call your veterinarian if it continues or your dog seems off."]);
-  if (entry.worms) flags.push(["warn", "Possible worms or segments", "Mention this to your veterinarian. A stool test can confirm what it is."]);
-  if (entry.blood === "streak") flags.push(["warn", "A small streak of blood", "One small streak can happen with straining or irritation. If it repeats or increases, contact your veterinarian."]);
-  if (entry.colorRecheck) flags.push(["info", "Color to recheck", "Look again in daylight. If an unusual color (grey, yellow, orange) persists, mention it to your veterinarian."]);
-
-  // Runs of loose or hard stool.
+  const hard = entry.score <= CLINICAL.hardScore;
+  const vulnerable = isVulnerable();
   const prior = all.filter(e => e.id !== entry.id).concat([entry]).sort((a, b) => a.ts - b.ts);
-  const run = (test) => { let n = 0; for (let i = prior.length - 1; i >= 0; i--) { if (test(prior[i].score)) n++; else break; } return n; };
-  const needLoose = isVulnerable() ? CLINICAL.looseRunVulnerable : CLINICAL.looseRunDefault;
-  const looseRun = run(s => s >= CLINICAL.looseScore);
-  if (looseRun >= needLoose) flags.push(["warn", `Loose stool on ${looseRun} logs in a row`, "Ongoing loose stool is worth a call to your veterinarian, especially if your dog is drinking less or seems off."]);
-  const hardRun = run(s => s <= CLINICAL.hardScore);
-  if (hardRun >= CLINICAL.hardRun) flags.push(["warn", `Hard, dry stool on ${hardRun} logs in a row`, "Ongoing hard stool or straining is worth mentioning to your veterinarian."]);
+
+  // ---- Same-day signs: shown immediately, never averaged away. ----
+  if (entry.color === "black") flags.push(["urgent", "Black, tar-like stool", "This can mean bleeding high in the digestive tract, because digested blood turns black. Some medications and iron supplements can also darken stool, so a vet needs to tell them apart. Contact your veterinarian today."]);
+  if (entry.blood === "more") flags.push(["urgent", "More than a streak of blood", "Contact your veterinarian today."]);
+  if (entry.blood === "streak" && entry.strain) flags.push(["urgent", "Blood with straining", "Contact your veterinarian today."]);
+  if (loose && entry.vomit) flags.push(["urgent", "Loose stool with vomiting", "Losing fluid from both ends can dehydrate a dog quickly. Contact your veterinarian today."]);
+  if (loose && entry.lethargy) flags.push(["urgent", "Loose stool and your dog seems unwell", "A quiet, unwilling dog with abnormal stool is a different situation from a bright, active one. Contact your veterinarian today."]);
+  if (entry.score >= CLINICAL.watery && vulnerable) flags.push(["urgent", "Watery stool in a puppy, senior, or very small dog", "These dogs can dehydrate quickly. Contact your veterinarian today."]);
+  if (entry.strain && entry.foreign) flags.push(["urgent", "Straining with possible foreign material", "Swallowed objects can cause blockages. Contact your veterinarian today."]);
+  else if (entry.strain && entry.blood !== "streak") flags.push(["urgent", "Straining with little or nothing coming out", "This can mean a blockage, severe constipation, or anal gland trouble. Contact your veterinarian today."]);
+
+  // ---- Watchouts ----
+  if (loose && vulnerable && !flags.some(f => f[0] === "urgent")) flags.push(["warn", "Loose stool in a puppy, senior, or very small dog", "These dogs can dehydrate faster than healthy adults. Watch closely and call your veterinarian if it continues or your dog seems off."]);
+
+  if (entry.blood === "streak" && !entry.strain) {
+    const since = entry.ts - CLINICAL.bloodRepeatDays * 86400000;
+    const repeat = prior.some(e => e.id !== entry.id && e.ts >= since && e.blood && e.blood !== "none");
+    if (repeat) flags.push(["urgent", "Repeated streaks of blood", `Blood has shown up more than once in the last ${CLINICAL.bloodRepeatDays} days. Contact your veterinarian promptly.`]);
+    else flags.push(["warn", "A small streak of blood", "Bright red blood usually comes from lower in the gut or around the bottom. In a dog who is bright and eating normally, a single small streak can usually wait for a routine appointment. Repeated streaks, more blood, or blood with straining need prompt attention."]);
+  }
+
+  if (entry.mucus === "heavy") flags.push(["warn", "A lot of mucus", "Heavy mucus or a jelly-like coating suggests the large bowel is irritated. Contact your veterinarian, especially if it repeats or comes with loose stool or blood."]);
+  else if (entry.mucus === "little") flags.push(["info", "A little mucus", "A small amount can be normal. Keep an eye on whether it increases."]);
+
+  if (entry.color === "grey") flags.push(["warn", "Grey, pale, or greasy stool", "Especially if it is bulky and very smelly, this can mean the gut isn't absorbing fat properly. If you see it again, contact your veterinarian; it usually needs a workup."]);
+  if (entry.color === "green") flags.push(["info", "Green stool", "Usually means food moved through quickly; eating a lot of grass can do it too. One green stool is common. If it continues with loose stool or weight loss, contact your veterinarian."]);
+  if (entry.color === "yellow") flags.push(["info", "Yellow or orange stool", "Can come with fast transit. Read it together with consistency and how your dog is doing. If it is also greasy or keeps happening, contact your veterinarian."]);
+
+  if (entry.worms) flags.push(["warn", "Possible worms or segments", "Contact your veterinarian. A stool test can confirm what it is and guide treatment."]);
+
+  if (hard && !entry.strain) flags.push(["warn", "Hard, dry pellets", "This can mean constipation. Make sure fresh water is always available. If your dog strains, seems uncomfortable, or it happens again, contact your veterinarian."]);
+
+  // ---- How long loose stool has lasted (time-based, not log-count) ----
+  let streakStart = null;
+  for (let i = prior.length - 1; i >= 0; i--) { if (prior[i].score >= CLINICAL.looseScore) streakStart = prior[i]; else break; }
+  if (loose && streakStart) {
+    const hours = (entry.ts - streakStart.ts) / 3600000;
+    const limit = vulnerable ? CLINICAL.looseHoursVulnerable : CLINICAL.looseHoursDefault;
+    const span = hours >= 36 ? `${Math.round(hours / 24)} days` : `${Math.round(hours)} hours`;
+    if (hours >= limit) flags.push(["warn", `Loose stool for about ${span}`,
+      "Most simple bouts of diarrhea settle within a few days, but loose stool lasting this long is worth a call to your veterinarian, especially if your dog is drinking less or seems off."]);
+  }
+  // Runs of hard stool.
+  let hardRun = 0; for (let i = prior.length - 1; i >= 0; i--) { if (prior[i].score <= CLINICAL.hardScore) hardRun++; else break; }
+  if (hardRun >= CLINICAL.hardRun) flags.push(["warn", `Hard, dry stool on ${hardRun} logs in a row`, "Ongoing hard stool is worth a call to your veterinarian."]);
 
   // Change from this dog's baseline.
   const b = baseline();
-  if (b && !flags.some(f => f[0] === "urgent" || f[1].includes("in a row"))) {
+  if (b && !flags.some(f => f[0] === "urgent" || f[1].includes("in a row") || f[1].startsWith("Loose stool for") || f[1] === "Hard, dry pellets")) {
     const diff = entry.score - b.median;
     if (Math.abs(diff) >= CLINICAL.baselineShift) {
       const t = activeTransition(entry.date);
@@ -758,7 +810,8 @@ function saveEntry() {
   const entry = {
     id: uid(), ts: Date.now(), date: todayISO(), score: draft.score,
     aiScore: draft.aiScore, aiConfidence: draft.aiConfidence, aiAgreed: draft.aiScore ? draft.aiScore === draft.score : null,
-    mucus: gv("c_mucus"), worms: gv("c_worms"), foreign: gv("c_foreign"), blood: draft.blood, tarry: gv("c_tarry"), colorRecheck: gv("c_color"),
+    color: draft.color, mucus: draft.mucus, blood: draft.blood, tarry: draft.color === "black",
+    worms: gv("c_worms"), foreign: gv("c_foreign"),
     strain: gv("c_strain"), urgency: gv("c_urgency"), vomit: gv("c_vomit"), lethargy: gv("c_lethargy"), appetite: gv("c_appetite"),
     times: timesRaw === "" ? null : Number(timesRaw), amount: document.getElementById("c_amount").value || null,
     context: [...draft.context], notes: document.getElementById("c_notes").value.trim(),
@@ -779,9 +832,9 @@ function saveEntry() {
 function gv(id) { return document.getElementById(id).checked; }
 function resetForm() {
   draft = resetDraft(); clearPhoto();
-  ["c_mucus","c_worms","c_foreign","c_tarry","c_color","c_strain","c_urgency","c_vomit","c_lethargy","c_appetite"].forEach(id => document.getElementById(id).checked = false);
+  ["c_worms","c_foreign","c_strain","c_urgency","c_vomit","c_lethargy","c_appetite"].forEach(id => document.getElementById(id).checked = false);
   document.getElementById("c_times").value = ""; document.getElementById("c_amount").value = ""; document.getElementById("c_notes").value = "";
-  setOpt("blood", "none");
+  setOpt("blood", "none"); setOpt("color", "brown"); setOpt("mucus", "none");
   document.querySelectorAll('.opts[data-group="context"] .opt').forEach(b => b.classList.remove("sel"));
   renderScale(); renderModeBanner();
 }
@@ -809,7 +862,7 @@ function renderHistory() {
       ${e.thumb ? `<img src="${e.thumb}" alt="">` : `<div class="noimg"></div>`}
       <div>
         <div class="s">${e.score} · ${SCALE[e.score - 1].t}${e.transitionId ? `<span class="pill tr">Diet change d${e.transitionDay}</span>` : ""}${e.flagTitles && e.flagTitles.length ? `<span class="pill fl">Flag</span>` : ""}</div>
-        <div class="m">${new Date(e.ts).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}${e.aiScore ? ` · photo suggested ${e.aiScore}` : ""}</div>
+        <div class="m">${new Date(e.ts).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}${e.aiScore ? ` · photo suggested ${e.aiScore}` : ""}${colorOf(e) !== "brown" ? ` · ${esc(COLOR_LABELS[colorOf(e)])}` : ""}</div>
         ${e.flagTitles && e.flagTitles.length ? `<div class="m">${esc(e.flagTitles.join(" · "))}</div>` : ""}
       </div>
       <button class="del" title="Delete" aria-label="Delete entry" onclick="deleteEntry('${e.id}')">×</button>
@@ -881,8 +934,8 @@ function printReport() {
     <h2>Flagged entries (${flagged.length})</h2>
     ${flagged.length ? flagged.map(e => `<div>${new Date(e.ts).toLocaleString()}: score ${e.score}. ${esc(e.flagTitles.join("; "))}</div>`).join("") : "<div>None.</div>"}
     <h2>All entries</h2>
-    <table><tr><th>Date / time</th><th>Score</th><th>Photo suggestion</th><th>Blood</th><th>Mucus</th><th>Tarry</th><th>Strain</th><th>Vomit</th><th>Lethargy</th><th>Diet change</th><th>Recent changes / notes</th></tr>
-    ${E.map(e => `<tr><td>${new Date(e.ts).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}</td><td>${e.score}</td><td>${e.aiScore || ""}</td><td>${e.blood === "none" ? "" : esc(e.blood)}</td><td>${yn(e.mucus)}</td><td>${yn(e.tarry)}</td><td>${yn(e.strain)}</td><td>${yn(e.vomit)}</td><td>${yn(e.lethargy)}</td><td>${e.transitionId ? "Day " + e.transitionDay : ""}</td><td>${esc([...(e.context || []).map(c => CONTEXT_LABELS[c] || c), e.notes].filter(Boolean).join("; "))}</td></tr>`).join("")}</table>
+    <table><tr><th>Date / time</th><th>Score</th><th>Photo suggestion</th><th>Color</th><th>Blood</th><th>Mucus</th><th>Strain</th><th>Vomit</th><th>Lethargy</th><th>Diet change</th><th>Recent changes / notes</th></tr>
+    ${E.map(e => `<tr><td>${new Date(e.ts).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}</td><td>${e.score}</td><td>${e.aiScore || ""}</td><td>${esc(colorOf(e) === "brown" ? "" : COLOR_LABELS[colorOf(e)] || "")}</td><td>${e.blood === "none" ? "" : esc(e.blood === "more" ? "More than a streak" : "Streak")}</td><td>${esc(mucusOf(e))}</td><td>${yn(e.strain)}</td><td>${yn(e.vomit)}</td><td>${yn(e.lethargy)}</td><td>${e.transitionId ? "Day " + e.transitionDay : ""}</td><td>${esc([...(e.context || []).map(c => CONTEXT_LABELS[c] || c), e.notes].filter(Boolean).join("; "))}</td></tr>`).join("")}</table>
     <p style="margin-top:12px;font-size:10px">Owner-recorded observations. Photo suggestions are AI estimates and are not validated against veterinary scoring. ${esc(DISCLOSURE)}</p>`;
   window.print();
 }
