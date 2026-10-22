@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Stool Tracker · Canine Digestive Health Log</title>
+<title>Canine Stool Tracker · Digestive Health Log</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -116,7 +116,7 @@
 <div class="app">
   <header class="top">
     <div>
-      <h1>Stool Tracker</h1>
+      <h1>Canine Stool Tracker</h1>
       <div class="sub">A home log of your dog's digestive health</div>
     </div>
     <button class="dog-chip" id="dogChip" onclick="openProfile()">Set up your dog</button>
@@ -916,7 +916,7 @@ document.getElementById("importInput").addEventListener("change", e => {
       if (!confirm("Replace the log on this device with the imported file?")) return;
       db = { profile: d.profile || null, entries: d.entries, transitions: d.transitions || [], baselineFrom: d.baselineFrom || 0 };
       persist(); updateChip(); renderHistory(); renderModeBanner();
-    } catch (_) { alert("That file isn't a Stool Tracker export."); }
+    } catch (_) { alert("That file isn't a Canine Stool Tracker export."); }
   };
   r.readAsText(f); e.target.value = "";
 });
